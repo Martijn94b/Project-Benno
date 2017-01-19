@@ -1,11 +1,7 @@
 import psycopg2
 import smtplib
 import random
-
-def random_with_N_digits(n):
-    range_start = 10**(4-1)
-    range_end = (10**4)-1
-    randint(range_start, range_end)
+import sys
 
 def authentication():
     conn_string = "host='localhost' dbname='Sportschool' user='postgres' password='Burdeos1'"
@@ -49,15 +45,17 @@ def authentication():
         server.sendmail(fromaddr, toaddrs, msg)
         server.quit()
 
-        check=0
-        auth=input("Voer de authenticatiecode in die naar u is gestuurd: ")
-        if auth!=randomint:
-            while check<4:
-                check+=1
-                auth=input("Voer de authenticatiecode in die naar u is gestuurd: ")
+        count=0
+        auth=int(input("Voer de authenticatiecode in die naar u is gestuurd: "))
 
+        while auth!=randomint:
+            if count<2:
+                auth=int(input("Voer de authenticatiecode in die naar u is gestuurd: "))
+                if auth!=randomint:
+                    count+=1
+                    print(count)
+        if count>=2:
+            sys.exit("U heeft 3 keer de verkeerde code ingevoerd, het proces wordt nu afgebroken")
 
-
-
-
+        print("Succes")
 
