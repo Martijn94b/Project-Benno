@@ -55,20 +55,25 @@ def toon_huidige_sessie():
                     print(count)
         if count>=2:
             sys.exit("U heeft 3 keer de verkeerde code ingevoerd, het proces wordt nu afgebroken")
-
-
-    cursor.execute("SELECT aanmeldingsdatum, abonnementstype, abonnementsduur, aantal_bezoeken FROM klanten WHERE klant_id="+klantid)
-
-    # retrieve the records from the database
-    records = cursor.fetchall()
-    records=list(records)
-    for i in records:
-        lijst=list(i)
-        aandate=str(lijst[0])
-        abtype=lijst[1]
-        abduur=str(lijst[2])
-        aantal_bezoek=str(lijst[3])
-
-    print("\nU bent bij Benno's Sportschool geregistreerd sinds: "+aandate+"\nUw huidige abonnementstype is: "+abtype+"\nUw abonnement is geldig tot: "+abduur+"\nU heeft onze sportschool nu "+aantal_bezoek+" keer bezocht.")
+        abtype=input("Kies uw gewenste abonnementstype (Basis/Luxe): ")
+        while abtype not in ["Basis","Luxe"]:
+                abtype=input("Kies uw gewenste abonnementstype (Basis/Luxe): ")
+                if abtype=="":
+                    sys.exit("Ongeldige invoer; proces wordt afgebroken.")
+        term=int(input("Kies de gewenste duur (in maanden) van het geupgrade abonnement: "))
+        if abtype=="Basis":
+            prijs=term*20
+        if abtype=="Luxe":
+            prijs=term*40
+        print("U wordt doorverwezen naar de betalingspagina van uw bank.")
+        print("De kosten van uw gekozen tijdsduur zijn "+str(prijs)+" euro.")
+        print("U wordt nu doorverwezen naar de betaalpagina van uw bank.")
+        gesl=input("Is de betaling gelukt (placeholder):")
+        if gesl in ["Ja", "ja"]:
+                cursor.execute("UPDATE klanten SET abonnementstype='"+abtype+"', abonnementsduur="+str(term)+" WHERE klant_id="+str(klantid))
+                conn.commit()
+                print("Uw abonnement is succesvol gewijzigd.")
+        else:
+            print("Betaling mislukt; proces wordt afgebroken.")
 
 toon_huidige_sessie()
