@@ -54,4 +54,6 @@ def registreer():
 
     cursor.execute("INSERT INTO klanten(klant_id, naam, achternaam, woonplaats, geboortedatum, aanmeldingsdatum, abonnementstype, abonnementsduur, aantal_bezoeken, wachtwoord, email, gewicht, begingewicht) VALUES ("+str(nieuw)+", '"+naam+"', '"+achternaam+"', '"+woonplaats+"', '"+str(datum)+"', '"+str(date)+"', '"+abtype+"', "+str(abduur)+", "+str(0)+", '"+wachtwoord+"', '"+email+"', "+str(gewicht)+", "+str(gewicht)+")")
     conn.commit()
+    print("Uw klant ID is: "+str(nieuw))
+    print("U bent succesvol ingeschreven bij Benno's Sportschool!")
 registreer()
