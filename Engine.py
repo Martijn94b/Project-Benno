@@ -4,17 +4,77 @@ import smtplib
 import random
 import datetime
 import matplotlib.pyplot as plt
+from time import strftime
 
 def registreer():
     conn_string = "host='localhost' dbname='Sportschool' user='postgres' password='Burdeos1'"
     # print the connection string we will use to connect
-    print ("Connecting to database\n	->%s" % (conn_string))
 
     # get a connection, if a connect cannot be made an exception will be raised here
     conn = psycopg2.connect(conn_string)
 
     # conn.cursor will return a cursor object, you can use this cursor to perform queries
     cursor = conn.cursor()
+
+    # execute our Query
+    cursor.execute("SELECT klant_id FROM klanten")
+
+    # retrieve the records from the database
+    records = cursor.fetchall()
+
+    records=list(records)
+    orig=[]
+    for i in records:
+        sessie=list(i)
+        item=sessie[0]
+        orig.append(item)
+    try:
+        maxn=max(orig)
+        nieuw=maxn+1
+    except:
+        ValueError()
+        nieuw=1
+
+    naam=input("\nWat is uw naam: ")
+    achternaam=input("Wat is uw achternaam: ")
+    woonplaats=input("Wat is uw woonplaats: ")
+    email=input("Wat is uw emailadres: ")
+    wachtwoord=input("Voer een wachtwoord in: ")
+    wachtwoord2=input("Voer uw wachtwoord opnieuw in: ")
+    while wachtwoord!=wachtwoord2:
+        print("De wachtwoorden zijn niet hetzelfde; probeer het opnieuw.")
+        wachtwoord=input("Voer een wachtwoord in: ")
+        wachtwoord2=input("Voer uw wachtwoord opnieuw in: ")
+    while '@' not in email:
+        print("Uw ingevulde emailadres is niet geldig. Probeer het opnieuw.")
+        email=input("Voer een emailadres in: ")
+    geboortedatum=input("Wat is uw geboortedatum: ")
+    datum=datetime.datetime.strptime(geboortedatum, "%Y-%m-%d").date()
+    date=datetime.datetime.today().strftime("%Y-%m-%d")
+    abtype=input("Kies een abonnementstype: ")
+    abduur=input("Kies een termijn voor uw abonnement: ")
+    gewicht=int(input("Wat is uw huidige gewicht: "))
+
+
+    cursor.execute("INSERT INTO klanten(klant_id, naam, achternaam, woonplaats, geboortedatum, aanmeldingsdatum, abonnementstype, abonnementsduur, aantal_bezoeken, wachtwoord, email, gewicht, begingewicht) VALUES ("+str(nieuw)+", '"+naam+"', '"+achternaam+"', '"+woonplaats+"', '"+str(datum)+"', '"+str(date)+"', '"+abtype+"', "+str(abduur)+", "+str(0)+", '"+wachtwoord+"', '"+email+"', "+str(gewicht)+", "+str(gewicht)+")")
+    conn.commit()
+    print("Uw klant ID is: "+str(nieuw))
+    print("U bent succesvol ingeschreven bij Benno's Sportschool!")
+
+def registreer_zakelijk():
+
+    conn_string = "host='localhost' dbname='Sportschool' user='postgres' password='Burdeos1'"
+    # print the connection string we will use to connect
+
+    # get a connection, if a connect cannot be made an exception will be raised here
+    conn = psycopg2.connect(conn_string)
+
+    # conn.cursor will return a cursor object, you can use this cursor to perform queries
+    cursor = conn.cursor()
+
+    auth=input("\nVul de medewerkerauthenticatiecode in: ")
+    if auth != "06070":
+        sys.exit("Uw heeft een verkeerde code ingevuld; het proces wordt afgebroken.")
 
     # execute our Query
     cursor.execute("SELECT klant_id FROM klanten")
@@ -50,22 +110,29 @@ def registreer():
         email=input("Voer een emailadres in: ")
     geboortedatum=input("Wat is uw geboortedatum: ")
     datum=datetime.datetime.strptime(geboortedatum, "%Y-%m-%d").date()
+    term=int(input("Kies de gewenste duur (in maanden) van uw Luxe abonnement: "))
+    aantal_dag=term*30
+
+    start_date=strftime("%Y-%m-%d")
+    date_1 = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+
+    end_date = date_1 + datetime.timedelta(days=aantal_dag)
+    end_date=str(end_date)
+
+    end_date = end_date.replace(' ', '')[:10].upper()
     date=datetime.datetime.today().strftime("%Y-%m-%d")
-    abtype=input("Kies een abonnementstype: ")
-    abduur=input("Kies een termijn voor uw abonnement: ")
+    abtype="Luxe"
     gewicht=int(input("Wat is uw huidige gewicht: "))
 
 
-    cursor.execute("INSERT INTO klanten(klant_id, naam, achternaam, woonplaats, geboortedatum, aanmeldingsdatum, abonnementstype, abonnementsduur, aantal_bezoeken, wachtwoord, email, gewicht, begingewicht) VALUES ("+str(nieuw)+", '"+naam+"', '"+achternaam+"', '"+woonplaats+"', '"+str(datum)+"', '"+str(date)+"', '"+abtype+"', "+str(abduur)+", "+str(0)+", '"+wachtwoord+"', '"+email+"', "+str(gewicht)+", "+str(gewicht)+")")
+    cursor.execute("INSERT INTO klanten(klant_id, naam, achternaam, woonplaats, geboortedatum, aanmeldingsdatum, abonnementstype, aantal_bezoeken, wachtwoord, email, gewicht, begingewicht, abonnementsduur) VALUES ("+str(nieuw)+", '"+naam+"', '"+achternaam+"', '"+woonplaats+"', '"+str(datum)+"', '"+str(date)+"', '"+abtype+"', "+str(0)+", '"+wachtwoord+"', '"+email+"', "+str(gewicht)+", "+str(gewicht)+", '"+str(end_date)+"')")
     conn.commit()
     print("Uw klant ID is: "+str(nieuw))
     print("U bent succesvol ingeschreven bij Benno's Sportschool!")
 
-
-def ab_upgrade():
+def upgrade_ab():
     conn_string = "host='localhost' dbname='Sportschool' user='postgres' password='Burdeos1'"
 	# print the connection string we will use to connect
-    print ("Connecting to database\n	->%s" % (conn_string))
 
 	# get a connection, if a connect cannot be made an exception will be raised here
     conn = psycopg2.connect(conn_string)
@@ -73,7 +140,7 @@ def ab_upgrade():
 	# conn.cursor will return a cursor object, you can use this cursor to perform queries
     cursor = conn.cursor()
 
-    klantid=input("Voer een klant_ID in: ")
+    klantid=input("\nVoer uw klant_ID in: ")
     wacht=input("Voer uw wachtwoord in: ")
     cursor.execute("SELECT wachtwoord, email FROM klanten WHERE klant_id="+str(klantid))
 
@@ -119,7 +186,17 @@ def ab_upgrade():
                 abtype=input("Kies uw gewenste abonnementstype (Basis/Luxe): ")
                 if abtype=="":
                     sys.exit("Ongeldige invoer; proces wordt afgebroken.")
-        term=int(input("Kies de gewenste duur (in maanden) van het geupgrade abonnement: "))
+        term=int(input("Kies de gewenste duur (in maanden) van uw Luxe abonnement: "))
+        aantal_dag=term*30
+
+        start_date=strftime("%Y-%m-%d")
+        date_1 = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+
+        end_date = date_1 + datetime.timedelta(days=aantal_dag)
+        end_date=str(end_date)
+
+        end_date = end_date.replace(' ', '')[:10].upper()
+
         if abtype=="Basis":
             prijs=term*20
         if abtype=="Luxe":
@@ -129,7 +206,7 @@ def ab_upgrade():
         print("U wordt nu doorverwezen naar de betaalpagina van uw bank.")
         gesl=input("Is de betaling gelukt (placeholder):")
         if gesl in ["Ja", "ja"]:
-                cursor.execute("UPDATE klanten SET abonnementstype='"+abtype+"', abonnementsduur="+str(term)+" WHERE klant_id="+str(klantid))
+                cursor.execute("UPDATE klanten SET abonnementstype='"+abtype+"', abonnementsduur='"+str(end_date)+"' WHERE klant_id="+str(klantid))
                 conn.commit()
                 print("Uw abonnement is succesvol gewijzigd.")
         else:
@@ -139,7 +216,6 @@ def ab_upgrade():
 def insert():
     conn_string = "host='localhost' dbname='Sportschool' user='postgres' password='Burdeos1'"
     # print the connection string we will use to connect
-    print ("Connecting to database\n	->%s" % (conn_string))
 
     # get a connection, if a connect cannot be made an exception will be raised here
     conn = psycopg2.connect(conn_string)
@@ -167,7 +243,7 @@ def insert():
         ValueError()
         nieuw=1
 
-    klantid=input("Wat is uw klant ID: ")
+    klantid=input("\nVoer uw klant ID in: ")
     wacht=input("Voer uw wachtwoord in: ")
 
     cursor.execute("SELECT wachtwoord FROM klanten WHERE klant_id="+str(klantid))
@@ -180,79 +256,96 @@ def insert():
 
 
     if wacht==password:
-        gewicht=int(input("Wat is uw huidige gewicht: "))
+        cursor.execute("SELECT abonnementsduur, abonnementstype FROM klanten WHERE klant_id="+klantid)
 
-        cursor.execute("SELECT naam, achternaam FROM klanten WHERE klant_id="+str(klantid))
-        gegevens=cursor.fetchall()
-        for i in gegevens:
-            lijst=list(i)
-            naam=lijst[0]
-            achternaam=lijst[1]
+        # retrieve the records from the database
+        records = cursor.fetchall()
 
-        verbrand=0
-        sessieduur=0
-        activ=[]
-        keus=input("Wilt u een activiteit registreren Ja/Nee")
-        while keus not in ["Ja", "ja", 'Nee', "nee"]:
-            keus=input("Wilt u een activiteit registreren Ja/Nee")
-        while keus=="Ja" or keus=="ja":
-            # get a connection, if a connect cannot be made an exception will be raised here
-            conn = psycopg2.connect(conn_string)
+        records=list(records)
+        for i in records:
+            sessie=list(i)
+            expire=str(sessie[0])
+            abtype=sessie[1]
 
-            # conn.cursor will return a cursor object, you can use this cursor to perform queries
-            cursor = conn.cursor()
+        nu=strftime("%Y-%m-%d")
+        d1=datetime.datetime.strptime(nu, "%Y-%m-%d").date()
+        d2 = datetime.datetime.strptime(expire, "%Y-%m-%d").date()
+        if d1<d2 and abtype=="Luxe":
+            gewicht=int(input("Wat is uw huidige gewicht: "))
 
-            act=input("Voer een activiteit in: ")
-            aantal=int(input("Hoeveel minuten heeft u aan deze activiteit besteed: "))
-            activ.append(act)
+            cursor.execute("SELECT naam, achternaam FROM klanten WHERE klant_id="+str(klantid))
+            gegevens=cursor.fetchall()
+            for i in gegevens:
+                lijst=list(i)
+                naam=lijst[0]
+                achternaam=lijst[1]
 
-            cursor.execute("SELECT calorie FROM activiteiten WHERE activiteit='"+act+"'")
-
-            # retrieve the records from the database
-            records1 = cursor.fetchall()
-            records1=list(records1)
-            sessieduur+=aantal
-            string=""
-            string+=(act+", ")
-            for i in records1:
-                calorie=list(i)
-                item=calorie[0]*aantal*gewicht
-                verbrand+=item
-
+            verbrand=0
+            sessieduur=0
+            activ=[]
             keus=input("Wilt u een activiteit registreren Ja/Nee")
             while keus not in ["Ja", "ja", 'Nee', "nee"]:
-                keus=input("Wilt u nog een activiteit registreren Ja/Nee")
-        if keus=="Nee" or keus=="nee" and verbrand==0:
-            print("Activiteit registratie geannuleerd")
-        elif keus=="Nee" or keus=="nee" and verbrand>0:
-            activstr=str(activ)
-            activ2 = activstr.replace("[", "")
-            activ3 = activ2.replace("]", "")
-            activfinal =activ3.replace("'","")
-            date=datetime.datetime.today().strftime("%Y-%m-%d")
+                keus=input("Wilt u een activiteit registreren Ja/Nee")
+            while keus=="Ja" or keus=="ja":
+                # get a connection, if a connect cannot be made an exception will be raised here
+                conn = psycopg2.connect(conn_string)
 
-            #insert data into databese
-            cursor.execute("INSERT INTO sessies(sessie_id, klant_id, naam, achternaam, activiteiten, sessieduur, calorie, gewicht, datum) VALUES ("+str(nieuw)+", "+str(klantid)+", '"+naam+"', '"+achternaam+"', '"+activfinal+"', "+str(sessieduur)+", "+str(verbrand)+", "+str(gewicht)+", '"+str(date)+"')")
-            conn.commit()
-            verbrand=round(verbrand,2)
-            print("\nU heeft tijdens deze sessie "+str(verbrand)+" kilocalorieen verbrand")
-            print("Uw sessie is succesvol opgeslagen in de database.")
+                # conn.cursor will return a cursor object, you can use this cursor to perform queries
+                cursor = conn.cursor()
 
-            cursor.execute("SELECT aantal_bezoeken FROM klanten")
+                act=input("Voer een activiteit in: ")
+                aantal=int(input("Hoeveel minuten heeft u aan deze activiteit besteed: "))
+                activ.append(act)
 
-            # retrieve the records from the database
-            records2 = cursor.fetchall()
+                cursor.execute("SELECT calorie FROM activiteiten WHERE activiteit='"+act+"'")
 
-            records2=list(records2)
-            for i in records2:
-                lijst2=list(i)
-                aantalbez=lijst2[0]
+                # retrieve the records from the database
+                records1 = cursor.fetchall()
+                records1=list(records1)
+                sessieduur+=aantal
+                string=""
+                string+=(act+", ")
+                for i in records1:
+                    calorie=list(i)
+                    item=calorie[0]*aantal*gewicht
+                    verbrand+=item
 
-            nieuw=aantalbez+1
-            #Apply changes
-            cursor.execute("UPDATE klanten SET aantal_bezoeken="+str(nieuw)+", gewicht="+str(gewicht)+" WHERE klant_id="+str(klantid))
-            conn.commit()
+                keus=input("Wilt u een activiteit registreren Ja/Nee")
+                while keus not in ["Ja", "ja", 'Nee', "nee"]:
+                    keus=input("Wilt u nog een activiteit registreren Ja/Nee")
+            if keus=="Nee" or keus=="nee" and verbrand==0:
+                print("Activiteit registratie geannuleerd")
+            elif keus=="Nee" or keus=="nee" and verbrand>0:
+                activstr=str(activ)
+                activ2 = activstr.replace("[", "")
+                activ3 = activ2.replace("]", "")
+                activfinal =activ3.replace("'","")
+                date=datetime.datetime.today().strftime("%Y-%m-%d")
 
+                #insert data into databese
+                cursor.execute("INSERT INTO sessies(sessie_id, klant_id, naam, achternaam, activiteiten, sessieduur, calorie, gewicht, datum) VALUES ("+str(nieuw)+", "+str(klantid)+", '"+naam+"', '"+achternaam+"', '"+activfinal+"', "+str(sessieduur)+", "+str(verbrand)+", "+str(gewicht)+", '"+str(date)+"')")
+                conn.commit()
+                verbrand=round(verbrand,2)
+                print("\nU heeft tijdens deze sessie "+str(verbrand)+" kilocalorieen verbrand")
+                print("Uw sessie is succesvol opgeslagen in de database.")
+
+                cursor.execute("SELECT aantal_bezoeken FROM klanten")
+
+                # retrieve the records from the database
+                records2 = cursor.fetchall()
+
+                records2=list(records2)
+                for i in records2:
+                    lijst2=list(i)
+                    aantalbez=lijst2[0]
+
+                nieuw=aantalbez+1
+                #Apply changes
+                cursor.execute("UPDATE klanten SET aantal_bezoeken="+str(nieuw)+", gewicht="+str(gewicht)+" WHERE klant_id="+str(klantid))
+                conn.commit()
+        else:
+            print("Uw Luxe abonnement is verlopen; verleng uw abonnement als u wilt blijven sporten bij Benno's Sportschool")
+            cursor.execute("UPDATE klanten SET abonnementstype='Geen' WHERE klant_id="+klantid)
     else:
         print("U heeft het verkeerde wachtwoord ingevuld; het proces wordt afgebroken.")
 
@@ -260,7 +353,6 @@ def insert():
 def sessie_info():
 	conn_string = "host='localhost' dbname='Sportschool' user='postgres' password='Burdeos1'"
 	# print the connection string we will use to connect
-	print ("Connecting to database\n	->%s" % (conn_string))
 
 	# get a connection, if a connect cannot be made an exception will be raised here
 	conn = psycopg2.connect(conn_string)
@@ -268,7 +360,7 @@ def sessie_info():
 	# conn.cursor will return a cursor object, you can use this cursor to perform queries
 	cursor = conn.cursor()
 
-	klantid=input("Voer een klant_ID in: ")
+	klantid=input("\nVoer uw klant_ID in: ")
 	wacht=input("Voer uw wachtwoord in: ")
 
 	cursor.execute("SELECT wachtwoord FROM klanten WHERE klant_id="+str(klantid))
@@ -307,14 +399,13 @@ def sessie_info():
 def progress():
     conn_string = "host='localhost' dbname='Sportschool' user='postgres' password='Burdeos1'"
     # print the connection string we will use to connect
-    print ("Connecting to database\n	->%s" % (conn_string))
 
     # get a connection, if a connect cannot be made an exception will be raised here
     conn = psycopg2.connect(conn_string)
 
     # conn.cursor will return a cursor object, you can use this cursor to perform queries
     cursor = conn.cursor()
-    klantid=int(input("Wat is uw klant ID: "))
+    klantid=int(input("\nVoer uw klant ID in: "))
     wacht=input("Voer uw wachtwoord in: ")
 
     cursor.execute("SELECT wachtwoord FROM klanten WHERE klant_id="+str(klantid))
@@ -411,7 +502,6 @@ def progress():
 def prive_info():
     conn_string = "host='localhost' dbname='Sportschool' user='postgres' password='Burdeos1'"
 	# print the connection string we will use to connect
-    print ("Connecting to database\n	->%s" % (conn_string))
 
 	# get a connection, if a connect cannot be made an exception will be raised here
     conn = psycopg2.connect(conn_string)
@@ -419,7 +509,7 @@ def prive_info():
 	# conn.cursor will return a cursor object, you can use this cursor to perform queries
     cursor = conn.cursor()
 
-    klantid=input("Voer een klant_ID in: ")
+    klantid=input("\nVoer uw klant_ID in: ")
     wacht=input("Voer uw wachtwoord in: ")
     cursor.execute("SELECT wachtwoord, email FROM klanten WHERE klant_id="+str(klantid))
 
@@ -495,7 +585,14 @@ while keuze not in ["1","2","3","4","5","6","7"]:
 herhaal="ja"
 while keuze!="7" or herhaal not in ["nee","Nee"]:
     if keuze=="1":
-        registreer()
+        doorv=input("Bent u doorverwezen door een professional? Ja/Nee")
+        while doorv not in ["ja","Ja","nee","Nee"]:
+            print("U heeft geen geldig antwoord gegeven; probeer het opnieuw.")
+            doorv=input("Bent u doorverwezen door een professional? Ja/Nee")
+        if doorv in ["ja", "Ja"]:
+            registreer_zakelijk()
+        else:
+            registreer()
         herhaal=input("Wilt u gebruikmaken van een andere optie? Ja/Nee")
         while herhaal not in ["ja","Ja","nee","Nee"]:
             print("U heeft geen geldig antwoord gegeven; probeer het opnieuw.")
@@ -509,7 +606,7 @@ while keuze!="7" or herhaal not in ["nee","Nee"]:
             keuze="7"
 
     if keuze=="2":
-        ab_upgrade()
+        upgrade_ab()
         herhaal=input("Wilt u gebruikmaken van een andere optie? Ja/Nee")
         while herhaal not in ["ja","Ja","nee","Nee"]:
             print("U heeft geen geldig antwoord gegeven; probeer het opnieuw.")

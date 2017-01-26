@@ -1,7 +1,10 @@
 import psycopg2
 import datetime
+from time import strftime
+import sys
 
-def registreer():
+def registreer_zakelijk():
+
     conn_string = "host='localhost' dbname='Sportschool' user='postgres' password='Burdeos1'"
     # print the connection string we will use to connect
     print ("Connecting to database\n	->%s" % (conn_string))
@@ -11,6 +14,10 @@ def registreer():
 
     # conn.cursor will return a cursor object, you can use this cursor to perform queries
     cursor = conn.cursor()
+
+    auth=input("Vul de medewerkerauthenticatiecode in: ")
+    if auth != "06070":
+        sys.exit("Uw heeft een verkeerde code ingevuld; het proces wordt afgebroken.")
 
     # execute our Query
     cursor.execute("SELECT klant_id FROM klanten")
@@ -46,14 +53,23 @@ def registreer():
         email=input("Voer een emailadres in: ")
     geboortedatum=input("Wat is uw geboortedatum: ")
     datum=datetime.datetime.strptime(geboortedatum, "%Y-%m-%d").date()
+    term=int(input("Kies de gewenste duur (in maanden) van uw Luxe abonnement: "))
+    aantal_dag=term*30
+
+    start_date=strftime("%Y-%m-%d")
+    date_1 = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+
+    end_date = date_1 + datetime.timedelta(days=aantal_dag)
+    end_date=str(end_date)
+
+    end_date = end_date.replace(' ', '')[:10].upper()
     date=datetime.datetime.today().strftime("%Y-%m-%d")
-    abtype="Geen"
-    abduur=date
+    abtype="Luxe"
     gewicht=int(input("Wat is uw huidige gewicht: "))
 
 
-    cursor.execute("INSERT INTO klanten(klant_id, naam, achternaam, woonplaats, geboortedatum, aanmeldingsdatum, abonnementstype, aantal_bezoeken, wachtwoord, email, gewicht, begingewicht, abonnementsduur) VALUES ("+str(nieuw)+", '"+naam+"', '"+achternaam+"', '"+woonplaats+"', '"+str(datum)+"', '"+str(date)+"', '"+abtype+"', "+str(0)+", '"+wachtwoord+"', '"+email+"', "+str(gewicht)+", "+str(gewicht)+", '"+str(abduur)+"')")
+    cursor.execute("INSERT INTO klanten(klant_id, naam, achternaam, woonplaats, geboortedatum, aanmeldingsdatum, abonnementstype, aantal_bezoeken, wachtwoord, email, gewicht, begingewicht, abonnementsduur) VALUES ("+str(nieuw)+", '"+naam+"', '"+achternaam+"', '"+woonplaats+"', '"+str(datum)+"', '"+str(date)+"', '"+abtype+"', "+str(0)+", '"+wachtwoord+"', '"+email+"', "+str(gewicht)+", "+str(gewicht)+", '"+str(end_date)+"')")
     conn.commit()
     print("Uw klant ID is: "+str(nieuw))
     print("U bent succesvol ingeschreven bij Benno's Sportschool!")
-registreer()
+registreer_zakelijk()

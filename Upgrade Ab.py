@@ -2,8 +2,10 @@ import psycopg2
 import sys
 import smtplib
 import random
+import datetime
+from time import strftime
 
-def toon_huidige_sessie():
+def upgrade_ab():
     conn_string = "host='localhost' dbname='Sportschool' user='postgres' password='Burdeos1'"
 	# print the connection string we will use to connect
     print ("Connecting to database\n	->%s" % (conn_string))
@@ -60,7 +62,17 @@ def toon_huidige_sessie():
                 abtype=input("Kies uw gewenste abonnementstype (Basis/Luxe): ")
                 if abtype=="":
                     sys.exit("Ongeldige invoer; proces wordt afgebroken.")
-        term=int(input("Kies de gewenste duur (in maanden) van het geupgrade abonnement: "))
+        term=int(input("Kies de gewenste duur (in maanden) van uw Luxe abonnement: "))
+        aantal_dag=term*30
+
+        start_date=strftime("%Y-%m-%d")
+        date_1 = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+
+        end_date = date_1 + datetime.timedelta(days=aantal_dag)
+        end_date=str(end_date)
+
+        end_date = end_date.replace(' ', '')[:10].upper()
+
         if abtype=="Basis":
             prijs=term*20
         if abtype=="Luxe":
@@ -70,10 +82,10 @@ def toon_huidige_sessie():
         print("U wordt nu doorverwezen naar de betaalpagina van uw bank.")
         gesl=input("Is de betaling gelukt (placeholder):")
         if gesl in ["Ja", "ja"]:
-                cursor.execute("UPDATE klanten SET abonnementstype='"+abtype+"', abonnementsduur="+str(term)+" WHERE klant_id="+str(klantid))
+                cursor.execute("UPDATE klanten SET abonnementstype='"+abtype+"', abonnementsduur='"+str(end_date)+"' WHERE klant_id="+str(klantid))
                 conn.commit()
                 print("Uw abonnement is succesvol gewijzigd.")
         else:
             print("Betaling mislukt; proces wordt afgebroken.")
 
-toon_huidige_sessie()
+upgrade_ab()
