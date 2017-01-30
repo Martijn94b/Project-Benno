@@ -212,6 +212,72 @@ def upgrade_ab():
         else:
             print("Betaling mislukt; proces wordt afgebroken.")
 
+def ab_opzeg():
+    conn_string = "host='localhost' dbname='Sportschool' user='postgres' password='Burdeos1'"
+	# print the connection string we will use to connect
+    print ("Connecting to database\n	->%s" % (conn_string))
+
+	# get a connection, if a connect cannot be made an exception will be raised here
+    conn = psycopg2.connect(conn_string)
+
+	# conn.cursor will return a cursor object, you can use this cursor to perform queries
+    cursor = conn.cursor()
+
+    klantid=input("Voer een klant_ID in: ")
+    wacht=input("Voer uw wachtwoord in: ")
+    cursor.execute("SELECT wachtwoord, email FROM klanten WHERE klant_id="+str(klantid))
+
+    passmail = cursor.fetchall()
+    passmail=list(passmail)
+    for i in passmail:
+        lijst=list(i)
+        password=lijst[0]
+        email=lijst[1]
+
+    if wacht==password:
+        randomint=random.randrange(1000,9999)
+        text="U heeft recentelijk geprobeerd om in te loggen bij Benno's Sportschool\nDe benodigde authenticatiecode is: "+str(randomint)+"\n\nWas u dit niet? Neem dan contact op met onze klantenservice\n\nBedankt voor uw geduld en graag tot ziens,\nKlantenservice Benno's Sportschool"
+
+        fromaddr = 'bennossportschool1@gmail.com'
+        toaddrs  = email
+        msg = 'Subject: %s\n\n%s' % ("Authenticatiecode", text)
+
+        # Credentials (if needed)
+        username = 'bennossportschool1'
+        password = 'januari2017'
+
+        # The actual mail send
+        server = smtplib.SMTP('smtp.gmail.com:587')
+        server.starttls()
+        server.login(username,password)
+        server.sendmail(fromaddr, toaddrs, msg)
+        server.quit()
+
+        count=0
+        auth=int(input("Voer de authenticatiecode in die naar u is gestuurd: "))
+
+        while auth!=randomint:
+            if count<2:
+                auth=int(input("Voer de authenticatiecode in die naar u is gestuurd: "))
+                if auth!=randomint:
+                    count+=1
+                    print(count)
+        if count>=2:
+            sys.exit("U heeft 3 keer de verkeerde code ingevoerd, het proces wordt nu afgebroken")
+        abtype=input("Weet u zeker dat u uw abonnement op wil zeggen?")
+        while abtype not in ["ja","Ja","nee","Nee"]:
+                abtype=input("Weet u zeker dat u uw abonnement op wil zeggen?")
+        if abtype in ["nee","Nee"]:
+            sys.exit("Opzegging geannuleerd.")
+        else:
+
+            start_date=strftime("%Y-%m-%d")
+            cursor.execute("UPDATE klanten SET abonnementstype='Geen', abonnementsduur='"+str(start_date)+"' WHERE klant_id="+str(klantid))
+            conn.commit()
+            print("Uw abonnement is succesvol opgezegd.")
+    else:
+        print("Uw ingevulde gegevens zijn niet correct; proces wordt afgebroken.")
+
 
 def insert():
     conn_string = "host='localhost' dbname='Sportschool' user='postgres' password='Burdeos1'"
@@ -571,19 +637,20 @@ def prive_info():
 print("Welkom bij Benno's Sportschool")
 print("Selecteer 1 van de volgende opties:")
 print("     1. Registreren bij onze Sportschool.")
-print("     2. Uw abonnement wijzigen.")
-print("     3. Uw sportsessie vastleggen.")
-print("     4. Informatie over uw sportsessies opvragen.")
-print("     5. Informatie over uw voortgang opvragen.")
-print("     6. Uw prive informatie opvragen.")
-print("     7. Annuleren")
+print("     2. Uw abonnement verlengen.")
+print("     3. Uw abonnement opzeggen.")
+print("     4. Uw sportsessie vastleggen.")
+print("     5. Informatie over uw sportsessies opvragen.")
+print("     6. Informatie over uw voortgang opvragen.")
+print("     7. Uw prive informatie opvragen.")
+print("     8. Annuleren")
 
 keuze=input("\nVoer uw keuze in: ")
-while keuze not in ["1","2","3","4","5","6","7"]:
+while keuze not in ["1","2","3","4","5","6","7","8"]:
             print("U heeft geen geldig antwoord gegeven; probeer het opnieuw.")
             keuze=input("Voer uw keuze in: ")
 herhaal="ja"
-while keuze!="7" or herhaal not in ["nee","Nee"]:
+while keuze!="8" or herhaal not in ["nee","Nee"]:
     if keuze=="1":
         doorv=input("Bent u doorverwezen door een professional? Ja/Nee")
         while doorv not in ["ja","Ja","nee","Nee"]:
@@ -599,11 +666,11 @@ while keuze!="7" or herhaal not in ["nee","Nee"]:
             herhaal=input("Wilt u gebruikmaken van een andere optie? Ja/Nee")
         if herhaal=="ja" or herhaal=="Ja":
             keuze=input("Voer uw keuze in: ")
-            while keuze not in ["1","2","3","4","5","6","7"]:
+            while keuze not in ["1","2","3","4","5","6","7","8"]:
                 print("U heeft geen geldig antwoord gegeven; probeer het opnieuw.")
                 keuze=input("Voer uw keuze in: ")
         if herhaal=="nee" or herhaal=="Nee":
-            keuze="7"
+            keuze="8"
 
     if keuze=="2":
         upgrade_ab()
@@ -613,13 +680,27 @@ while keuze!="7" or herhaal not in ["nee","Nee"]:
             herhaal=input("Wilt u gebruikmaken van een andere optie? Ja/Nee")
         if herhaal=="ja" or herhaal=="Ja":
             keuze=input("Voer uw keuze in: ")
-            while keuze not in ["1","2","3","4","5","6","7"]:
+            while keuze not in ["1","2","3","4","5","6","7","8"]:
                 print("U heeft geen geldig antwoord gegeven; probeer het opnieuw.")
                 keuze=input("Voer uw keuze in: ")
         if herhaal=="nee" or herhaal=="Nee":
-            keuze="7"
+            keuze="8"
 
     if keuze=="3":
+        ab_opzeg()
+        herhaal=input("Wilt u gebruikmaken van een andere optie? Ja/Nee")
+        while herhaal not in ["ja","Ja","nee","Nee"]:
+            print("U heeft geen geldig antwoord gegeven; probeer het opnieuw.")
+            herhaal=input("Wilt u gebruikmaken van een andere optie? Ja/Nee")
+        if herhaal=="ja" or herhaal=="Ja":
+            keuze=input("Voer uw keuze in: ")
+            while keuze not in ["1","2","3","4","5","6","7","8"]:
+                print("U heeft geen geldig antwoord gegeven; probeer het opnieuw.")
+                keuze=input("Voer uw keuze in: ")
+        if herhaal=="nee" or herhaal=="Nee":
+            keuze="8"
+
+    if keuze=="4":
         insert()
         herhaal=input("Wilt u gebruikmaken van een andere optie? Ja/Nee")
         while herhaal not in ["ja","Ja","nee","Nee"]:
@@ -627,13 +708,13 @@ while keuze!="7" or herhaal not in ["nee","Nee"]:
             herhaal=input("Wilt u gebruikmaken van een andere optie? Ja/Nee")
         if herhaal=="ja" or herhaal=="Ja":
             keuze=input("Voer uw keuze in: ")
-            while keuze not in ["1","2","3","4","5","6","7"]:
+            while keuze not in ["1","2","3","4","5","6","7","8"]:
                 print("U heeft geen geldig antwoord gegeven; probeer het opnieuw.")
                 keuze=input("Voer uw keuze in: ")
         if herhaal=="nee" or herhaal=="Nee":
-            keuze="7"
+            keuze="8"
 
-    if keuze=="4":
+    if keuze=="5":
         sessie_info()
         herhaal=input("Wilt u gebruikmaken van een andere optie? Ja/Nee")
         while herhaal not in ["ja","Ja","nee","Nee"]:
@@ -641,13 +722,13 @@ while keuze!="7" or herhaal not in ["nee","Nee"]:
             herhaal=input("Wilt u gebruikmaken van een andere optie? Ja/Nee")
         if herhaal=="ja" or herhaal=="Ja":
             keuze=input("Voer uw keuze in: ")
-            while keuze not in ["1","2","3","4","5","6","7"]:
+            while keuze not in ["1","2","3","4","5","6","7","8"]:
                 print("U heeft geen geldig antwoord gegeven; probeer het opnieuw.")
                 keuze=input("Voer uw keuze in: ")
         if herhaal=="nee" or herhaal=="Nee":
             keuze="7"
 
-    if keuze=="5":
+    if keuze=="6":
         progress()
         herhaal=input("Wilt u gebruikmaken van een andere optie? Ja/Nee")
         while herhaal not in ["ja","Ja","nee","Nee"]:
@@ -655,13 +736,13 @@ while keuze!="7" or herhaal not in ["nee","Nee"]:
             herhaal=input("Wilt u gebruikmaken van een andere optie? Ja/Nee")
         if herhaal=="ja" or herhaal=="Ja":
             keuze=input("Voer uw keuze in: ")
-            while keuze not in ["1","2","3","4","5","6","7"]:
+            while keuze not in ["1","2","3","4","5","6","7","8"]:
                 print("U heeft geen geldig antwoord gegeven; probeer het opnieuw.")
                 keuze=input("Voer uw keuze in: ")
         if herhaal=="nee" or herhaal=="Nee":
-            keuze="7"
+            keuze="8"
 
-    if keuze=="6":
+    if keuze=="7":
         prive_info()
         herhaal=input("Wilt u gebruikmaken van een andere optie? Ja/Nee")
         while herhaal not in ["ja","Ja","nee","Nee"]:
@@ -669,12 +750,12 @@ while keuze!="7" or herhaal not in ["nee","Nee"]:
             herhaal=input("Wilt u gebruikmaken van een andere optie? Ja/Nee")
         if herhaal=="ja" or herhaal=="Ja":
             keuze=input("Voer uw keuze in: ")
-            while keuze not in ["1","2","3","4","5","6","7"]:
+            while keuze not in ["1","2","3","4","5","6","7","8"]:
                 print("U heeft geen geldig antwoord gegeven; probeer het opnieuw.")
                 keuze=input("Voer uw keuze in: ")
         if herhaal=="nee" or herhaal=="Nee":
-            keuze="7"
+            keuze="8"
 
-    if keuze=="7":
+    if keuze=="8":
         print("Bedankt en tot ziens!")
         break
