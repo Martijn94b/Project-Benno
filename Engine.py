@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from time import strftime
 
 def registreer():
-    conn_string = "host='localhost' dbname='Sportschool' user='postgres' password='Burdeos1'"
+    conn_string = "host='145.89.157.156' dbname='Sportschool' user='postgres' password='Burdeos1'"
     # print the connection string we will use to connect
 
     # get a connection, if a connect cannot be made an exception will be raised here
@@ -51,19 +51,19 @@ def registreer():
     geboortedatum=input("Wat is uw geboortedatum: ")
     datum=datetime.datetime.strptime(geboortedatum, "%Y-%m-%d").date()
     date=datetime.datetime.today().strftime("%Y-%m-%d")
-    abtype=input("Kies een abonnementstype: ")
-    abduur=input("Kies een termijn voor uw abonnement: ")
+    abtype="Geen"
+    abduur=date
     gewicht=int(input("Wat is uw huidige gewicht: "))
 
 
-    cursor.execute("INSERT INTO klanten(klant_id, naam, achternaam, woonplaats, geboortedatum, aanmeldingsdatum, abonnementstype, abonnementsduur, aantal_bezoeken, wachtwoord, email, gewicht, begingewicht) VALUES ("+str(nieuw)+", '"+naam+"', '"+achternaam+"', '"+woonplaats+"', '"+str(datum)+"', '"+str(date)+"', '"+abtype+"', "+str(abduur)+", "+str(0)+", '"+wachtwoord+"', '"+email+"', "+str(gewicht)+", "+str(gewicht)+")")
+    cursor.execute("INSERT INTO klanten(klant_id, naam, achternaam, woonplaats, geboortedatum, aanmeldingsdatum, abonnementstype, abonnementsduur, aantal_bezoeken, wachtwoord, email, gewicht, begingewicht) VALUES ("+str(nieuw)+", '"+naam+"', '"+achternaam+"', '"+woonplaats+"', '"+str(datum)+"', '"+str(date)+"', '"+abtype+"', '"+str(abduur)+"', "+str(0)+", '"+wachtwoord+"', '"+email+"', "+str(gewicht)+", "+str(gewicht)+")")
     conn.commit()
     print("Uw klant ID is: "+str(nieuw))
     print("U bent succesvol ingeschreven bij Benno's Sportschool!")
 
 def registreer_zakelijk():
 
-    conn_string = "host='localhost' dbname='Sportschool' user='postgres' password='Burdeos1'"
+    conn_string = "host='145.89.157.156' dbname='Sportschool' user='postgres' password='Burdeos1'"
     # print the connection string we will use to connect
 
     # get a connection, if a connect cannot be made an exception will be raised here
@@ -131,7 +131,7 @@ def registreer_zakelijk():
     print("U bent succesvol ingeschreven bij Benno's Sportschool!")
 
 def upgrade_ab():
-    conn_string = "host='localhost' dbname='Sportschool' user='postgres' password='Burdeos1'"
+    conn_string = "host='145.89.157.156' dbname='Sportschool' user='postgres' password='Burdeos1'"
 	# print the connection string we will use to connect
 
 	# get a connection, if a connect cannot be made an exception will be raised here
@@ -213,7 +213,7 @@ def upgrade_ab():
             print("Betaling mislukt; proces wordt afgebroken.")
 
 def ab_opzeg():
-    conn_string = "host='localhost' dbname='Sportschool' user='postgres' password='Burdeos1'"
+    conn_string = "host='145.89.157.156' dbname='Sportschool' user='postgres' password='Burdeos1'"
 	# print the connection string we will use to connect
     print ("Connecting to database\n	->%s" % (conn_string))
 
@@ -280,7 +280,7 @@ def ab_opzeg():
 
 
 def insert():
-    conn_string = "host='localhost' dbname='Sportschool' user='postgres' password='Burdeos1'"
+    conn_string = "host='145.89.157.156' dbname='Sportschool' user='postgres' password='Burdeos1'"
     # print the connection string we will use to connect
 
     # get a connection, if a connect cannot be made an exception will be raised here
@@ -417,53 +417,53 @@ def insert():
 
 
 def sessie_info():
-	conn_string = "host='localhost' dbname='Sportschool' user='postgres' password='Burdeos1'"
-	# print the connection string we will use to connect
+    conn_string = "host='145.89.157.156' dbname='Sportschool' user='postgres' password='Burdeos1'"
+    # print the connection string we will use to connect
 
 	# get a connection, if a connect cannot be made an exception will be raised here
-	conn = psycopg2.connect(conn_string)
+    conn = psycopg2.connect(conn_string)
 
-	# conn.cursor will return a cursor object, you can use this cursor to perform queries
-	cursor = conn.cursor()
+    # conn.cursor will return a cursor object, you can use this cursor to perform queries
+    cursor = conn.cursor()
 
-	klantid=input("\nVoer uw klant_ID in: ")
-	wacht=input("Voer uw wachtwoord in: ")
+    klantid=input("\nVoer uw klant_ID in: ")
+    wacht=input("Voer uw wachtwoord in: ")
 
-	cursor.execute("SELECT wachtwoord FROM klanten WHERE klant_id="+str(klantid))
+    cursor.execute("SELECT wachtwoord FROM klanten WHERE klant_id="+str(klantid))
 
-	passw = cursor.fetchall()
-	passw=list(passw)
-	for i in passw:
-		lijst=list(i)
-		password=lijst[0]
+    passw = cursor.fetchall()
+    passw=list(passw)
+    for i in passw:
+        lijst=list(i)
+        password=lijst[0]
 
-	if wacht==password:
+    if wacht==password:
 
-		try:
-			sessieid=input("Voer een sessie_ID in: ")
+        try:
+            sessieid=input("Voer een sessie_ID in: ")
 
-			# execute our Query
-			cursor.execute("SELECT * FROM sessies WHERE klant_id="+klantid+" AND sessie_id="+sessieid)
+            # execute our Query
+            cursor.execute("SELECT * FROM sessies WHERE klant_id="+klantid+" AND sessie_id="+sessieid)
 
-			# retrieve the records from the database
-			records = cursor.fetchall()
-			records=list(records)
-			for i in records:
-				lijst=list(i)
-				activiteiten=lijst[4]
-				sessieduur=lijst[5]
-				calorie=lijst[6]
-				calorie=str(calorie)
-				sessieduur=str(sessieduur)
-			print("\nU heeft tijdens deze sessie de volgende activiteiten gedaan: "+activiteiten+"\n"+"U heeft in totaal "+sessieduur+" minuten aan deze activiteiten besteed."+"\n"+"Dit houdt in dat u in totaal "+calorie+" kilocalorieen heeft verbrand.")
-		except UnboundLocalError:
-			print("Er zijn geen resultaten voor uw ingevulde klant ID en sessie ID.")
-	else:
-		print("Uw ingevulde ingeloggegevens zijn niet correct; het proces is afgebroken.")
+            # retrieve the records from the database
+            records = cursor.fetchall()
+            records=list(records)
+            for i in records:
+                lijst=list(i)
+                activiteiten=lijst[4]
+                sessieduur=lijst[5]
+                calorie=lijst[6]
+                calorie=str(calorie)
+                sessieduur=str(sessieduur)
+            print("\nU heeft tijdens deze sessie de volgende activiteiten gedaan: "+activiteiten+"\n"+"U heeft in totaal "+sessieduur+" minuten aan deze activiteiten besteed."+"\n"+"Dit houdt in dat u in totaal "+calorie+" kilocalorieen heeft verbrand.")
+        except UnboundLocalError:
+            print("Er zijn geen resultaten voor uw ingevulde klant ID en sessie ID.")
+    else:
+        print("Uw ingevulde ingeloggegevens zijn niet correct; het proces is afgebroken.")
 
 
 def progress():
-    conn_string = "host='localhost' dbname='Sportschool' user='postgres' password='Burdeos1'"
+    conn_string = "host='145.89.157.156' dbname='Sportschool' user='postgres' password='Burdeos1'"
     # print the connection string we will use to connect
 
     # get a connection, if a connect cannot be made an exception will be raised here
@@ -566,7 +566,7 @@ def progress():
 
 
 def prive_info():
-    conn_string = "host='localhost' dbname='Sportschool' user='postgres' password='Burdeos1'"
+    conn_string = "host='145.89.157.156' dbname='Sportschool' user='postgres' password='Burdeos1'"
 	# print the connection string we will use to connect
 
 	# get a connection, if a connect cannot be made an exception will be raised here
