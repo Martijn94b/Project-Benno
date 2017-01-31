@@ -4,6 +4,10 @@ from tkinter import *
 from tkinter.messagebox import showinfo
 
 root = Tk()
+root.title("Registratie")
+root.iconbitmap('Reg3.ico')
+root.resizable(width=False, height=False)
+
 # voer de velden in die in de database moeten komen te zitten.
 velden = 'Voornaam', 'Achternaam', 'Woonplaats', 'E-mail', 'Wachtwoord', 'Wachtwoord opn.', 'geboortedatum', 'datum', 'Abonnementtype', 'Abonnementduur'
 
@@ -74,10 +78,19 @@ if __name__ == '__main__':
           command=(lambda e=Ingevoerde_Tekst: registreer(e)))
     Show_Knop.pack(side=LEFT, padx=5, pady=5)
 
+    # hoe groot de window moet zijn
+    #root.wm_geometry("1402x701+20+40")
 
     #knop om window te sluiten
     Quit_Knop = Button(root, text='Quit', command=root.quit)
-    Quit_Knop.pack(side=LEFT, padx=5, pady=5)
+    Quit_Knop.pack(side=LEFT, padx=5,pady=5)
+
+    canvas = Canvas(root, width=200, height=100)
+    canvas.pack()
+    #label = Label(root, image=photo).place(x=0, y=0, relwidth=1, relheight=1)
+    #label.image = photo
+    #label = Label(root, image=photo)
+    #label.pack()
 
     root.mainloop()
 
